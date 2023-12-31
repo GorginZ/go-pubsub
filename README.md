@@ -12,8 +12,45 @@ todo:
 docker tf version
 
 
-# DEMO 
+#  Usage
 
-## Create the backendbucket
+## auth:
 
-## Apply the configuration
+Auth with gcloud or use docker gcloud like so:
+
+```docker compose run gcloud auth application-default login```
+
+Follow prompts.
+
+## initialise the terraform workspace
+
+Locally:
+
+```docker compose run terraform -chdir=terraform init```
+
+
+## local backend
+
+```docker compose run terraform -chdir=terraform plan```
+
+Inspect the resources in the plan output
+
+---
+
+### optional
+
+### To use a remote backend
+
+
+Create a file terraform/backend.tf
+
+Put the value of the bucket, this will hold our tf state and we will migrate the state by re initialising the tf workspace
+
+```
+ terraform {
+   backend "gcs" {
+     # bucket = "replaceme"
+     prefix = "terraform/state"
+   }
+ }
+```

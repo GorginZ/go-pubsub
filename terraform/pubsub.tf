@@ -70,9 +70,9 @@ resource "google_service_account" "pubsub_service_account" {
   display_name = "pubsub-system"
 }
 
-resource "google_service_account_iam_member" "admin-account-iam" {
-  count              = length(local.pubsub_service_account_roles)
-  service_account_id = google_service_account.pubsub_service_account.name
-  role               = "roles/${local.pubsub_service_account_roles[count.index]}"
-  member             = "serviceAccount:${google_service_account.pubsub_service_account.email}"
+resource "google_project_iam_member" "pubsub_project_sa_iam" {
+  project = google_project.go_pubsub.project_id
+  count   = length(local.pubsub_service_account_roles)
+  role    = "roles/${local.pubsub_service_account_roles[count.index]}"
+  member  = "serviceAccount:${google_service_account.pubsub_service_account.email}"
 }

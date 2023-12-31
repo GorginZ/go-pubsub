@@ -5,6 +5,9 @@
 *.tfstate
 *.tfstate.*
 
+# Ignore local tfvars for exercise
+*localvars.tfvars
+
 # Crash log files
 crash.log
 

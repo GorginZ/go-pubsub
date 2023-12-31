@@ -18,7 +18,3 @@ services:
   terraform:
     <<: *base
     entrypoint: terraform
-
-  yq:
-    <<: *base
-    entrypoint: yq

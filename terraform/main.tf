@@ -3,8 +3,9 @@ locals {
 }
 
 resource "google_project" "go_pubsub" {
-  name       = "go-pubsub"
-  project_id = "go-pubsub"
+  name            = "prj-go-pubsub"
+  project_id      = "prj-go-pubsub"
+  billing_account = var.billing_account
 }
 
 # enable apis

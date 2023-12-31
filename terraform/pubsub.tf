@@ -1,13 +1,13 @@
 # order service will send messages to this topic
 locals {
-  pubsub_service_account_roles = [ "pubsub.publisher", "pubsub.subscriber" ]
+  pubsub_service_account_roles = ["pubsub.publisher", "pubsub.subscriber"]
 }
 
 resource "google_pubsub_topic" "order_topic" {
-  name = "order-topic"
-
+  name    = "order-topic"
+  project = google_project.go_pubsub.project_id
   labels = {
-    app = "go-pubsub"
+    app       = "go-pubsub"
     component = "order"
   }
   message_retention_duration = "86600s"
@@ -15,13 +15,14 @@ resource "google_pubsub_topic" "order_topic" {
 
 # subscriptions
 resource "google_pubsub_subscription" "package_sub" {
-  name  = "package_sub"
-  topic = google_pubsub_topic.order_topic.name
+  name    = "package_sub"
+  project = google_project.go_pubsub.project_id
+  topic   = google_pubsub_topic.order_topic.name
 
   # 20 minutes
   message_retention_duration = "1200s"
   retain_acked_messages      = true
-  ack_deadline_seconds = 20
+  ack_deadline_seconds       = 20
 
   expiration_policy {
     ttl = "300000.5s"
@@ -29,23 +30,24 @@ resource "google_pubsub_subscription" "package_sub" {
   retry_policy {
     minimum_backoff = "10s"
   }
-  enable_message_ordering    = false
+  enable_message_ordering = false
 
   labels = {
-    app = "go-pubsub"
+    app       = "go-pubsub"
     component = "packaging"
   }
 }
 
 
 resource "google_pubsub_subscription" "notification_sub" {
-  name  = "notification_sub"
-  topic = google_pubsub_topic.order_topic.name
+  name    = "notification_sub"
+  project = google_project.go_pubsub.project_id
+  topic   = google_pubsub_topic.order_topic.name
 
   # 20 minutes
   message_retention_duration = "1200s"
   retain_acked_messages      = true
-  ack_deadline_seconds = 20
+  ack_deadline_seconds       = 20
 
   expiration_policy {
     ttl = "300000.5s"
@@ -53,23 +55,24 @@ resource "google_pubsub_subscription" "notification_sub" {
   retry_policy {
     minimum_backoff = "10s"
   }
-  enable_message_ordering    = false
+  enable_message_ordering = false
 
   labels = {
-    app = "go-pubsub"
+    app       = "go-pubsub"
     component = "notification"
   }
 }
 
 #SA
 resource "google_service_account" "pubsub_service_account" {
+  project      = google_project.go_pubsub.project_id
   account_id   = "pubsub-system"
   display_name = "pubsub-system"
 }
 
 resource "google_service_account_iam_member" "admin-account-iam" {
-  for_each = count(local.pubsub_service_account_roles)
+  count              = length(local.pubsub_service_account_roles)
   service_account_id = google_service_account.pubsub_service_account.name
-  role               = "roles/${local.pubsub_service_account_roles[each.key]}"
+  role               = "roles/${local.pubsub_service_account_roles[count.index]}"
   member             = "serviceAccount:${google_service_account.pubsub_service_account.email}"
 }

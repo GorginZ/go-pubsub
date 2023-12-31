@@ -28,12 +28,13 @@ Locally:
 
 ```docker compose run terraform -chdir=terraform init```
 
-
-## local backend
+Then tf plan:
 
 ```docker compose run terraform -chdir=terraform plan```
 
-Inspect the resources in the plan output
+Inspect the resources in the plan output.
+
+Initially we will apply using a local backend. Optionally we can migrate this state to our bucket created in the main.tf.
 
 ---
 

@@ -4,6 +4,7 @@ resource "random_id" "bucket_prefix" {
 
 resource "google_storage_bucket" "default" {
   name          = "${random_id.bucket_prefix.hex}-bucket-tfstate"
+  project       = google_project.go_pubsub.project_id
   force_destroy = true # this is just a demo want it to be easy to clean up
   location      = "AUSTRALIA-SOUTHEAST2"
   storage_class = "STANDARD"

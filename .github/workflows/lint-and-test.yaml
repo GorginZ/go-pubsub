@@ -1,12 +1,20 @@
 name: go-pubsub-order-lint-and-test 
 on: [push]
 jobs:
-  lint-test:
+  lint:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: lint
+    - name: lint tf
       run: |
-        ./scripts/lint.sh
+        ./scripts/lint.sh tf_fmt
+
+    - name: validate tf
+      run: |
+        ./scripts/lint.sh tf_validate
+
+    - name: lint go
+      run: |
+        ./scripts/lint.sh lint_go

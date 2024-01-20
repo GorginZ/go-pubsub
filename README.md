@@ -1,5 +1,8 @@
 # GO-PUBSUB
 
+![main](https://github.com/GorginZ/go-pubsub/actions/workflows/lint-and-test.yaml/badge.svg?)
+
+
 WIP
 
 Inspired by this but want to use terraform and go done while preparing for gcp architect exam.

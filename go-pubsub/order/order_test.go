@@ -1,4 +1,4 @@
-package main
+package order
 
 import (
 	"net/http"
@@ -12,15 +12,15 @@ import (
 func Test_handOrder(t *testing.T) {
 	tests := map[string]struct {
 		wantCode int
-		request *http.Request
-		w 		*httptest.ResponseRecorder
-		context *gin.Context
+		request  *http.Request
+		w        *httptest.ResponseRecorder
+		context  *gin.Context
 	}{
 		"valid request": {
 			wantCode: 200,
 			request: httptest.NewRequest("POST", "/order", strings.NewReader(`{"email": "
 			"product": "car", "amount": 99}`)),
-			w: httptest.NewRecorder(),
+			w:       httptest.NewRecorder(),
 			context: &gin.Context{},
 		},
 	}

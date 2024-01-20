@@ -12,5 +12,5 @@ RUN mkdir -p /usr/local/gcloud \
 
 ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
 
-FROM golang:1.21.5-alpine3.18 as go-ci
+FROM golang:1.21.6-alpine3.18 as go-ci
 RUN wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.49.0

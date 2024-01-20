@@ -28,11 +28,11 @@ services:
     <<: *ci-infra
     entrypoint: terraform
 
-  go: 
+  go-sh: 
     <<: *go-ci
-    entrypoint: go
+    #use default entrypoint
     environment:
-      - CGO_ENABLED=0
+      CGO_ENABLED: 0
 
   go-lint:
     <<: *go-ci

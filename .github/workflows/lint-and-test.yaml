@@ -1,7 +1,7 @@
 name: go-pubsub-order-lint-and-test 
 on: [push]
 jobs:
-  linting:
+  linting-and-testing:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -18,3 +18,7 @@ jobs:
     - name: lint go
       run: |
         ./scripts/lint.sh lint_go
+
+    - name: go-pubsub tests
+      run: |
+        ./scripts/go_test.sh all

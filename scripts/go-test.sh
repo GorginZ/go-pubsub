@@ -19,11 +19,11 @@ hash docker || die "docker not found" $?
 test_action=$1
 case $test_action in
     order|payment|shipping)
-        docker compose run --rm go-sh sh -c "cd go-pubsub/$test_action && go test ./...";
+        docker compose run --rm go-sh sh -c "cd go-pubsub/$test_action && go test -v ./...";
         ;;
 #example for running all tests for the exercise, we'll build these services out too
     all)
-        docker compose run --rm go-sh sh -c "cd go-pubsub/order && go test ./... && cd ../payment && go test ./... && cd ../shipping && go test ./..."
+        docker compose run --rm go-sh sh -c "cd go-pubsub/order && go test -v ./... && cd ../payment && go test -v ./... && cd ../shipping && go test -v ./..."
         ;;
 
     *)

@@ -21,7 +21,7 @@ test_action=$1
 case $test_action in
     order|payment|shipping)
         # run test for specific service only no need to find
-        # docker compose run --rm go-sh cd go-pubsub/$test_action && go test ./...  ## todo fix this difficulties with entrypoint
+        # docker compose run --rm go-sh cd go-pubsub/$test_action && go test ./...  ## todo fix this difficulties with the compose service entrypoint for the alpine go img.
         ;;
 
     all)

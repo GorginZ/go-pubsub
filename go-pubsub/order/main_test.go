@@ -1,4 +1,4 @@
-package order
+package main
 
 import (
 	"net/http"
@@ -18,10 +18,9 @@ func Test_handOrder(t *testing.T) {
 	}{
 		"valid request": {
 			wantCode: 200,
-			request: httptest.NewRequest("POST", "/order", strings.NewReader(`{"email": "
-			"product": "car", "amount": 99}`)),
-			w:       httptest.NewRecorder(),
-			context: &gin.Context{},
+			request:  httptest.NewRequest("POST", "/order", strings.NewReader(`{"email": "email.com", "product": "car", "amount": 99}`)),
+			w:        httptest.NewRecorder(),
+			context:  &gin.Context{},
 		},
 	}
 	for name, tc := range tests {

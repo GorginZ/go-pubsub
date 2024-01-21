@@ -30,10 +30,10 @@ services:
 
   go-sh: 
     <<: *go-ci
-    #use default entrypoint
     environment:
       CGO_ENABLED: 0
 
+#keep as seperate service for now bc tempermental GOROOT thing
   go-lint:
     <<: *go-ci
     entrypoint: golangci-lint

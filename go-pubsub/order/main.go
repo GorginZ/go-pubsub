@@ -10,9 +10,11 @@ import (
 
 // Order represents an order from the frontend
 type Order struct {
-	Email   string `json:"email"`
-	Product string `json:"product"`
-	Amount  int    `json:"amount"`
+	//how do I make bind json fail if mising field?
+	//we can use required tag
+	Email   string `json:"email" binding:"required"`
+	Product string `json:"product" binding:"required"`
+	Amount  int    `json:"amount" binding:"required"`
 }
 
 type OrderCreated struct {

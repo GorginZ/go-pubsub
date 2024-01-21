@@ -26,7 +26,7 @@ case $test_action in
 
     all)
         # docker compose run --rm go-sh find . -name go.mod -execdir go test ./... \; #this cmd works locally but alpine uses busybox find and doesnt have execdir...
-        docker compose run --rm go-sh find . -name go.mod -exec sh -c 'cd $(dirname {}); go test ./...' \; #TODO lol this exists 0 so need to ah, not exit zero on a fail... 
+        docker compose run --rm go-sh find . -name go.mod -exec sh -c 'cd $(dirname {}); go test ./...' \; | grep -i fail && die "tests failed" $? # we have to exit here because the way we do all tests it exits 0 and so does grep on match. bad, I know
         ;;
 
     *)

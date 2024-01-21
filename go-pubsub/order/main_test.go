@@ -22,6 +22,12 @@ func Test_handOrder(t *testing.T) {
 			w:        httptest.NewRecorder(),
 			context:  &gin.Context{},
 		},
+		"invalid request: missing email": {
+			wantCode: 400,
+			request:  httptest.NewRequest("POST", "/order", strings.NewReader(`{"product": "car", "amount": 99}`)),
+			w:        httptest.NewRecorder(),
+			context:  &gin.Context{},
+		},
 	}
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {

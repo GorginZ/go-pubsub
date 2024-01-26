@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	pubsub "cloud.google.com/go/pubsub"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,7 +33,8 @@ func Test_handOrder(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			ctx := GetTestContext(tc.w, tc.request)
-			handleOrder(ctx)
+			client, _ := pubsub.NewClient(ctx, "go-pubsub")
+			handleOrder(ctx, client)
 			if tc.w.Code != tc.wantCode {
 				t.Fatalf("got %v, want %v", tc.w.Code, tc.wantCode)
 			}

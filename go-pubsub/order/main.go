@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 
+	pubsub "cloud.google.com/go/pubsub"
 	"github.com/gin-gonic/gin"
 )
 
@@ -45,57 +48,30 @@ func generateOrderID() string {
 //
 //		return nil
 //	}
-//
-// // handle order will generate a order id and create a new order in an inmemory database and publish the order to pubsub
-//
-//	func handleOrder(c *gin.Context, client *pubsub.Client) {
-//		var order Order
-//		if err := c.BindJSON(&order); err != nil {
-//			c.JSON(400, gin.H{"message": "invalid request"})
-//			return
-//		}
-//		// generate order id
-//		id := generateOrderID()
-//
-//		o := OrderCreated{
-//			Order: order,
-//			Id:    id,
-//		}
-//
-//		// todo create order in inmem db doesn't matter
-//
-//		// publish order created event
-//
-// //	err := publishOrderCreated(client, o)
-//
-// //	if err != nil {
-// //		c.JSON(500, gin.H{"message": "internal server error"})
-// //		return
-// //	}
-//
-//		c.JSON(200, gin.H{"message": "order created"})
-//	}
-//
-//	func createAndConfigureClient() (*pubsub.Client, error) {
-//		// get envs
-//		projectID := os.Getenv("PROJECT_ID")
-//		topicID := os.Getenv("TOPIC_ID")
-//
-//		if projectID == "" || topicID == "" {
-//			return nil, fmt.Errorf("PROJECT_ID and TOPIC_ID must be set")
-//		}
-//
-//		// create client
-//		ctx := context.Background()
-//		client, err := pubsub.NewClient(ctx, projectID)
-//		client.Topic(topicID)
-//
-//		return client, err
-//	}
-func handleOrder(c *gin.Context) {
+func createAndConfigureClient() (*pubsub.Client, error) {
+	// get envs
+	projectID := os.Getenv("PROJECT_ID")
+	topicID := os.Getenv("TOPIC_ID")
+
+	if projectID == "" || topicID == "" {
+		return nil, fmt.Errorf("PROJECT_ID and TOPIC_ID must be set")
+	}
+
+	// create client
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
+	client.Topic(topicID)
+
+	return client, nil
+}
+
+func handleOrder(ctx *gin.Context, client *pubsub.Client) {
 	var order Order
-	if err := c.BindJSON(&order); err != nil {
-		c.JSON(400, gin.H{"message": "invalid request"})
+	if err := ctx.BindJSON(&order); err != nil {
+		ctx.JSON(400, gin.H{"message": "invalid request"})
 		return
 	}
 	// generate order id
@@ -107,6 +83,8 @@ func handleOrder(c *gin.Context) {
 	}
 
 	println(o.Id)
+	println(o.Order.Email)
+	println(client)
 
 	// todo order = c.Request.Bodycreate order in inmem db doesn't matter
 
@@ -118,18 +96,30 @@ func handleOrder(c *gin.Context) {
 	//	return
 	//}
 
-	c.JSON(200, gin.H{"message": "order created"})
+	ctx.JSON(200, gin.H{"message": "order created"})
+}
+
+// ApiMiddleware add client to context
+func ApiMiddleware(client *pubsub.Client) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		ctx.Set("client", client)
+		ctx.Next()
+	}
 }
 
 func main() {
-	//c, err := createAndConfigureClient()
-	//if err != nil {
-	//	// todo better exit
-	//	log.Fatal(err)
-	//}
+	client, err := createAndConfigureClient()
+	if err != nil {
+		// todo better exit
+		log.Fatal(err)
+	}
 
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
-	r.POST("/order", handleOrder)
+	r.Use(ApiMiddleware(client))
+	r.POST("/order", func(ctx *gin.Context) {
+		client := ctx.MustGet("client").(*pubsub.Client)
+		handleOrder(ctx, client)
+	})
 	log.Fatal(r.Run(":8080"))
 }

@@ -9,6 +9,7 @@ import (
 
 	pubsub "cloud.google.com/go/pubsub"
 	"github.com/gin-gonic/gin"
+	"google.golang.org/api/option"
 )
 
 // Order represents an order from the frontend
@@ -30,24 +31,26 @@ func generateOrderID() string {
 	return fmt.Sprintf("%05d", id)
 }
 
-//	func publishOrderCreated(client *pubsub.Client, order OrderCreated) error {
-//		ctx := context.Background()
-//		topicID := os.Getenv("TOPIC_ID")
-//		topic := client.Topic(topicID)
-//
-//		// publish order created event
-//		result := topic.Publish(ctx, &pubsub.Message{
-//			Data: []byte("order created"),
-//		})
-//
-//		// block until publish is finished
-//		_, err := result.Get(ctx)
-//		if err != nil {
-//			return err
-//		}
-//
-//		return nil
-//	}
+func publishOrderCreated(client *pubsub.Client, order OrderCreated) error {
+	ctx := context.Background()
+	topicID := os.Getenv("TOPIC_ID")
+	topic := client.Topic(topicID)
+
+	// publish order created event
+	result := topic.Publish(ctx, &pubsub.Message{
+		Data: []byte("order created"),
+	})
+
+	// block until publish is finished
+	msgID, err := result.Get(ctx)
+	if err != nil {
+		return err
+	}
+	log.Printf("published order created event with id %v", msgID)
+
+	return nil
+}
+
 func createAndConfigureClient() (*pubsub.Client, error) {
 	// get envs
 	projectID := os.Getenv("PROJECT_ID")
@@ -59,7 +62,10 @@ func createAndConfigureClient() (*pubsub.Client, error) {
 
 	// create client
 	ctx := context.Background()
-	client, err := pubsub.NewClient(ctx, projectID)
+	authjson := os.Getenv("AUTH_JSON")
+	opts := option.WithCredentialsFile(authjson)
+	client, err := pubsub.NewClient(ctx, projectID, opts)
+
 	if err != nil {
 		return nil, err
 	}
@@ -82,19 +88,16 @@ func handleOrder(ctx *gin.Context, client *pubsub.Client) {
 		Id:    id,
 	}
 
-	println(o.Id)
-	println(o.Order.Email)
-	println(client)
-
 	// todo order = c.Request.Bodycreate order in inmem db doesn't matter
 
 	// publish order created event
-	//err := publishOrderCreated(client, o)
+	err := publishOrderCreated(client, o)
 
-	//if err != nil {
-	//	c.JSON(500, gin.H{"message": "internal server error"})
-	//	return
-	//}
+	if err != nil {
+		ctx.JSON(500, gin.H{"message": "internal server error"})
+		log.Printf("error publishing order created event: %v", err)
+		return
+	}
 
 	ctx.JSON(200, gin.H{"message": "order created"})
 }
@@ -108,6 +111,7 @@ func ApiMiddleware(client *pubsub.Client) gin.HandlerFunc {
 }
 
 func main() {
+	// create client
 	client, err := createAndConfigureClient()
 	if err != nil {
 		// todo better exit
@@ -116,8 +120,13 @@ func main() {
 
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
+	// add client to context
 	r.Use(ApiMiddleware(client))
+	r.GET("/health", func(ctx *gin.Context) {
+		ctx.JSON(200, gin.H{"message": "ok"})
+	})
 	r.POST("/order", func(ctx *gin.Context) {
+		// get client from context
 		client := ctx.MustGet("client").(*pubsub.Client)
 		handleOrder(ctx, client)
 	})

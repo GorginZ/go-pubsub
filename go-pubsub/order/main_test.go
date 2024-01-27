@@ -139,11 +139,6 @@ func Test_handleOrder(t *testing.T) {
 			}
 			defer conn.Close()
 
-			//try set response
-			// srv.SetAutoPublishResponse(false)
-			// pbr := &pubsubpb.PublishResponse{MessageIds: []string{"1"}}
-			// srv.AddPublishResponse(pbr, nil)
-
 			// Use the connection when creating a pubsub client.
 			client, err := pubsub.NewClient(ctx, "project", option.WithGRPCConn(conn))
 			if err != nil {

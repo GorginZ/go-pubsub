@@ -2,7 +2,7 @@
 set -eo pipefail
 
 usage() {
-    echo "Usage: $0 <test_action>"
+    echo "Usage: $0 <module_to_test>"
     echo "  order - test order"
     echo "  payment - test payment"
     echo "  shipping - test shipping"
@@ -16,10 +16,10 @@ die() { echo "$1" >&2; exit "${2:-1}"; }
 
 hash docker || die "docker not found" $?
 
-test_action=$1
-case $test_action in
+module_to_test=$1
+case $module_to_test in
     order|payment|shipping)
-        docker compose run --rm go-sh sh -c "cd go-pubsub/$test_action && go test -v ./...";
+        docker compose run --rm go-sh sh -c "cd go-pubsub/$module_to_test && go test -v ./...";
         ;;
 #example for running all tests for the exercise, we'll build these services out too
     all)

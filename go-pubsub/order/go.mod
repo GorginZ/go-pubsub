@@ -5,6 +5,8 @@ go 1.21.6
 require (
 	cloud.google.com/go/pubsub v1.3.1
 	github.com/gin-gonic/gin v1.9.1
+	github.com/googleapis/google-cloud-go-testing v0.0.0-20210719221736-1c9a4c676720
+	google.golang.org/api v0.29.0
 )
 
 require (
@@ -42,7 +44,6 @@ require (
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
-	google.golang.org/api v0.29.0 // indirect
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/genproto v0.0.0-20200711021454-869866162049 // indirect
 	google.golang.org/grpc v1.32.0 // indirect

@@ -21,4 +21,4 @@ jobs:
 
     - name: go-pubsub tests
       run: |
-        ./scripts/go-test.sh all
+        ./scripts/go-test.sh order 

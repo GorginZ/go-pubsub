@@ -17,9 +17,10 @@ import (
 	"google.golang.org/grpc"
 )
 
-type HappyReactor struct{}
+// HappyPublishReactor will give us back a message ID to fake out success of the google pubsub api call
+type HappyPublishReactor struct{}
 
-func (r *HappyReactor) React(_ interface{}) (handled bool, ret interface{}, err error) {
+func (r *HappyPublishReactor) React(_ interface{}) (handled bool, ret interface{}, err error) {
 	pbr := &pubsubpb.PublishResponse{MessageIds: []string{"61"}}
 
 	return true, pbr, nil
@@ -31,28 +32,29 @@ func Test_handleOrder(t *testing.T) {
 		request  *http.Request
 		w        *httptest.ResponseRecorder
 		context  *gin.Context
-		reactor  pstest.Reactor
+		reactor  pstest.Reactor //  https://pkg.go.dev/cloud.google.com/go/pubsub/pstest?utm_source=godoc#Reactor
 	}{
 		"valid request": {
 			wantCode: 200,
 			request:  httptest.NewRequest("POST", "/order", strings.NewReader(`{"email": "email.com", "product": "car", "amount": 99}`)),
 			w:        httptest.NewRecorder(),
 			context:  &gin.Context{},
-			reactor:  &HappyReactor{}, //will return a msg ID
+			reactor:  &HappyPublishReactor{}, //will return a msg ID
 		},
 		"invalid request: missing email": {
 			wantCode: 400,
 			request:  httptest.NewRequest("POST", "/order", strings.NewReader(`{"product": "car", "amount": 99}`)),
 			w:        httptest.NewRecorder(),
 			context:  &gin.Context{},
-			reactor:  &HappyReactor{}, //not really relevant this will "fail fast"
+			reactor:  &HappyPublishReactor{}, //not really relevant this will "fail fast"
 		},
 		"pubsub error": {
 			wantCode: 500,
 			request:  httptest.NewRequest("POST", "/order", strings.NewReader(`{"email": "email.com", "product": "car", "amount": 99}`)),
 			w:        httptest.NewRecorder(),
 			context:  &gin.Context{},
-			reactor:  pstest.WithErrorInjection("Publish", 200, "georgia error").Reactor, //will give an error
+			// https://github.com/googleapis/google-cloud-go/blob/pubsub/v1.36.0/pubsub/pstest/fake.go#L1470
+			reactor: pstest.WithErrorInjection("Publish", 200, "georgia error").Reactor, //will give an error
 		},
 	}
 	for name, tc := range tests {

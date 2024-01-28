@@ -12,25 +12,26 @@ import (
 	"google.golang.org/api/option"
 )
 
-// Order represents an order from the frontend
+// Order represents an order from the "frontend" or some other service doesn't matter
 type Order struct {
-	//how do I make bind json fail if mising field?
-	//we can use required tag
 	Email   string `json:"email" binding:"required"`
 	Product string `json:"product" binding:"required"`
 	Amount  int    `json:"amount" binding:"required"`
 }
 
+// OrderCreated represents an order created event, so the order created from the order received
 type OrderCreated struct {
 	Order Order  `json:"order"`
 	Id    string `json:"id"`
 }
 
+// generateOrderID generates a random order id just because why not
 func generateOrderID() string {
 	id := rand.Intn(99999)
 	return fmt.Sprintf("%05d", id)
 }
 
+// publishOrderCreated publishes an order created event to pubsub
 func publishOrderCreated(client *pubsub.Client, order OrderCreated) error {
 	ctx := context.Background()
 	topicID := os.Getenv("TOPIC_ID")
@@ -51,6 +52,7 @@ func publishOrderCreated(client *pubsub.Client, order OrderCreated) error {
 	return nil
 }
 
+// createAndConfigureClient creates a pubsub client and configures it with projectid and topic
 func createAndConfigureClient() (*pubsub.Client, error) {
 	// get envs
 	projectID := os.Getenv("PROJECT_ID")
@@ -74,6 +76,7 @@ func createAndConfigureClient() (*pubsub.Client, error) {
 	return client, nil
 }
 
+// handleOrder handles an order request route
 func handleOrder(ctx *gin.Context, client *pubsub.Client) {
 	var order Order
 	if err := ctx.BindJSON(&order); err != nil {

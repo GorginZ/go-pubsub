@@ -91,8 +91,6 @@ func handleOrder(ctx *gin.Context, client *pubsub.Client) {
 		Id:    id,
 	}
 
-	// todo order = c.Request.Bodycreate order in inmem db doesn't matter
-
 	// publish order created event
 	err := publishOrderCreated(client, o)
 

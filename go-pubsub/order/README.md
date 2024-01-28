@@ -1,4 +1,4 @@
-# Order app
+# Order service
 
 Run locally
 

@@ -1,19 +1,24 @@
 # GO-PUBSUB
 
-WIP
+![main](https://github.com/GorginZ/go-pubsub/actions/workflows/lint-and-test.yaml/badge.svg?)
 
-Inspired by this but want to use terraform and go done while preparing for gcp architect exam.
 
-https://github.com/googleapis/python-pubsub
+Inspired by this google learning exercise [video](https://www.youtube.com/watch?v=f5DOsB7Nlw0&list=PLIivdWyY5sqKwVLe4BLJ-vlh9r9zCdOse&index=3&t=317s) presented by GCP's wonderful Priyanka Vergadia.
+But instead:
+- use terraform for gcp resources
+- go for applications
+- testing
+- tooling for local dev and testing
 
+This project is simply a fun learning exercise for me while preparing for gcp architect exam.
 
 Required:
 - [docker](https://www.docker.com/)
-- Access to a [GCP](https://console.cloud.google.com) account 
+- Access to a [GCP](https://console.cloud.google.com) account with billing enabled
 
 
 #  Usage
-/Terraform has resources to create pubsub topics and subscriptions 
+```/Terraform``` has resources to create pubsub topics and subscriptions 
 
 Everything is in docker to minimise requirements and to allow to focus on the exercise, which is simply to play with GCP pub-sub
 
@@ -91,5 +96,15 @@ Put the value of the bucket, this will hold our tf state and we will migrate the
  }
 ```
 
-then re initialise and migrate the state.
+then re initialise and migrate the state, this is simple, read about how to do this for a [GCS backend here](https://cloud.google.com/docs/terraform/resource-management/store-state) prompts .
 
+### Cleanup GCP resources
+
+```
+docker compose run terraform -chdir=terraform destroy -var-file=localvars.tfvars
+```
+
+
+### Run the services
+
+[Order Service](/go-pubsub/order/README.md)

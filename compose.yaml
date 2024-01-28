@@ -1,20 +1,42 @@
 ---
 version: '3.4'
 services:
-  base:
-    &base
+  ci-infra:
+    &ci-infra
     volumes:
       - $HOME/.config/gcloud:/root/.config/gcloud
       - .:/go-pubsub
     working_dir: /go-pubsub
     build:
       context: .
-      target: ci
+      target: ci-infra
+
+  go-ci:
+    &go-ci
+    volumes:
+      - .:/go-pubsub
+    working_dir: /go-pubsub
+    build:
+      context: .
+      target: go-ci
 
   gcloud:
-    <<: *base
+    <<: *ci-infra
     entrypoint: gcloud
 
   terraform:
-    <<: *base
+    <<: *ci-infra
     entrypoint: terraform
+
+  go-sh: 
+    <<: *go-ci
+    environment:
+      CGO_ENABLED: 0
+
+#keep as seperate service for now bc tempermental GOROOT thing
+  go-lint:
+    <<: *go-ci
+    entrypoint: golangci-lint
+    environment:
+      CGO_ENABLED: 0
+      GOROOT: /usr/local/go # re: https://github.com/golangci/golangci-lint/issues/3107 bumping to 1.49.0 worked but will keep this env.

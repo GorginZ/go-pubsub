@@ -1,4 +1,4 @@
 variable "billing_account" {
-  type = string
+  type      = string
   sensitive = true
 }
